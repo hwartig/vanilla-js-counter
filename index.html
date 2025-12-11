@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counter App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      /* font-family: Arial; */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .counter-container {
+      background: white;
+      padding: 3rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      min-width: 300px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 2rem;
+      font-size: 1.5rem;
+    }
+
+    #counter {
+      font-size: 4rem;
+      font-weight: bold;
+      color: #667eea;
+      margin: 2rem 0;
+      min-height: 5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    button {
+      font-size: 2rem;
+      width: 60px;
+      height: 60px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      color: white;
+    }
+
+    .btn-decrease {
+      background: #e74c3c;
+    }
+
+    .btn-decrease:hover {
+      background: #c0392b;
+      transform: scale(1.1);
+    }
+
+    .btn-increase {
+      background: #2ecc71;
+    }
+
+    .btn-increase:hover {
+      background: #27ae60;
+      transform: scale(1.1);
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+  <div class="counter-container">
+    <h1>Counter App</h1>
+    <div id="counter">0</div>
+    <div class="button-container">
+      <button class="btn-decrease" id="decreaseBtn">-</button>
+      <button class="btn-increase" id="increaseBtn">+</button>
+    </div>
+  </div>
+
+  <script>
+    let counter = 0;
+    const counterDisplay = document.getElementById('counter');
+    const decreaseBtn = document.getElementById('decreaseBtn');
+    const increaseBtn = document.getElementById('increaseBtn');
+
+    function updateCounter() {
+      counterDisplay.textContent = counter;
+    }
+
+    increaseBtn.addEventListener('click', () => {
+      counter++;
+      updateCounter();
+    });
+
+    decreaseBtn.addEventListener('click', () => {
+      counter--;
+      updateCounter();
+    });
+  </script>
+</body>
+</html>
