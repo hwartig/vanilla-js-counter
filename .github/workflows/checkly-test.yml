@@ -1,0 +1,57 @@
+# This GitHub Actions workflow runs your Checkly checks to verify your application after deployments.
+# It supports two scenarios:
+#
+# 1. **With CI/CD Pipeline (deployment_status event):**
+#    - Triggers after receiving a Deployment Status event from platforms like Vercel, Netlify, Heroku, etc.
+#    - Uses the environment_url provided in the deployment event to test against the actual deployed environment
+#    - Only runs when the deployment succeeds
+#
+# 2. **Without CI/CD Pipeline (push event):**
+#    - Triggers on every push to main/master branches
+#    - Useful for repositories without a deployment pipeline or when using template clones
+#
+# The workflow automatically detects which scenario applies and adjusts accordingly.
+name: 'Run Checkly Checks'
+
+on:
+  deployment_status: # Trigger when a deployment status event is received (Vercel, Netlify, etc.)
+  push: # Trigger on any push to any branch
+
+# Set the necessary credentials and environment variables for your Checkly checks.
+# The ENVIRONMENT_URL is used to run checks against your deployed environment (staging, preview, or production).
+env:
+  CHECKLY_API_KEY: ${{ secrets.CHECKLY_API_KEY }}
+  CHECKLY_ACCOUNT_ID: ${{ secrets.CHECKLY_ACCOUNT_ID }}
+  ENVIRONMENT_URL: ${{ github.event.deployment_status.environment_url || 'https://githubraw.com/hwartig/vanilla-js-counter/${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}' }}
+
+  CHECKLY_ENV: 'staging'
+jobs:
+  test-checkly:
+    # Only run when deployment was successful, or when pushing directly to main/master
+    if: github.event_name == 'push' || github.event.deployment_status.state == 'success'
+    name: Test E2E on Checkly
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment_status.deployment.ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Checkly checks # Run the checks and record the test session
+        id: run-checks
+        run: CHECKLY_ENV=${{ env.CHECKLY_ENV }} ENVIRONMENT_URL=${{ env.ENVIRONMENT_URL }} npx checkly -v && npx checkly test --reporter=github --record
+
+      - name: Create summary # Export the test results to the job summary
+        if: always()
+        id: create-summary
+        run: cat checkly-github-report.md >> $GITHUB_STEP_SUMMARY

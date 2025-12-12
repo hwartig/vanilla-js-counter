@@ -1,0 +1,48 @@
+# This GitHub Actions workflow deploys your Checkly checks and resources to Checkly.
+#
+# It triggers on pushes to the main/master branch and does the following:
+# - Installs dependencies
+# - Deploys all checks, alert channels, dashboards, and other resources to your Checkly account
+#
+# This workflow is useful for:
+# - Maintaining your monitoring as code in version control
+# - Automatically syncing changes to Checkly when you merge to main
+# - Ensuring your Checkly account stays in sync with your repository
+
+name: 'Deploy Checkly Checks and Resources'
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+# Set the necessary credentials for deploying to Checkly.
+env:
+  CHECKLY_API_KEY: ${{ secrets.CHECKLY_API_KEY }}
+  CHECKLY_ACCOUNT_ID: ${{ secrets.CHECKLY_ACCOUNT_ID }}
+  ENVIRONMENT_URL: ${{ github.event.deployment_status.environment_url || 'https://your-default-environment-url.com' }}
+
+  CHECKLY_ENV: 'staging'
+jobs:
+  deploy-checkly:
+    name: Deploy to Checkly
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full git history for accurate deployments
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Deploy checks and resources # Deploy all your checks and resources to Checkly
+        id: deploy-checks
+        run: CHECKLY_ENV=${{ env.CHECKLY_ENV }} ENVIRONMENT_URL=${{ env.ENVIRONMENT_URL }} npx checkly deploy --force
