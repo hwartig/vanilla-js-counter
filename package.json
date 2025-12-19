@@ -9,6 +9,8 @@
   "description": "",
   "devDependencies": {
     "@playwright/test": "^1.57.0",
-    "@types/node": "^25.0.0"
+    "@types/node": "^25.0.0",
+    "checkly": "^6.2.0",
+    "jiti": "^2"
   }
 }
